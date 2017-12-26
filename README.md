@@ -56,4 +56,49 @@ Usage of ./figura:
 
 ```
 
+So to run using config files within the '/etc/figura' and on port '8080' you would execute the command:
 
+```bash
+figura --port=8080 --configs=/etc/figura
+```
+
+## DevOps Endpoints
+
+Apart from the main get config file endpoint there are two others within figura:
+
+```
+   http[s]://<host>:<port>/api/v1/configuration/statistics
+   http[s]://<host>:<port>/api/v1/configuration/health
+```
+
+The former used the negroni statistics plugin and returns data like:
+
+```
+{
+	"pid": 1587,
+	"uptime": "2m53.303479465s",
+	"uptime_sec": 173.303479465,
+	"time": "2017-12-26 18:33:18.088128661 +0000 GMT m=+173.304615563",
+	"unixtime": 1514313198,
+	"status_code_count": {},
+	"total_status_code_count": {
+		"200": 2,
+		"404": 1
+	},
+	"count": 0,
+	"total_count": 3,
+	"total_response_time": "549.238µs",
+	"total_response_time_sec": 0.000549238,
+	"average_response_time": "183.079µs",
+	"average_response_time_sec": 0.000183079
+}
+```
+The latter is a simple endpoint which returns:
+
+```
+{
+	"status": "up"
+}
+```
+
+if figura is up and running
