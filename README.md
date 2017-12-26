@@ -30,7 +30,7 @@ The design is fairly simple ... we have a simple http server which dishes up fil
    http[s]://<host>:<port>/api/v1/configuration/<application-name>
 ```
 
-where <application-name> will map to a <application-name>.yml or <<application-name>.yaml> or <application-name>.json
+and a 'GET' request where <application-name> will map to a <application-name>.yml or <<application-name>.yaml> or <application-name>.json. The directory (in the default implimentation) used to read from is controlled by the '-configs' command line option.
 
 For example the 'lightauth2' application could have a configuration file called 'lightauth2.yml' or 'lightauth2.json'.
 
@@ -39,5 +39,21 @@ When a request is make the appropriate potential file names are looked up and th
 Security is fairly simple in that the GET request Authorization field is checked against the contents of a key file based off the naming convention <application-name>.key - so lightauth2 key would be stored within 'lightauth2.key'. If no key file is present then anyone can access that configuration file.
  
 
-## Getting Started
+## Execution
+
+After building and installation there is little to config other than the directory where the files are and the port to dish stuff out on. The 'figura --help' command returns:
+
+```bash
+./figura --help
+2017/12/26 18:18:14 [INFO] Initializing
+Usage of ./figura:
+  -configs string
+    	Directory here configurations stored (default "configs")
+  -port int
+    	Port to use (default 3050)
+  -profile
+    	Enable profiling endpoint
+
+```
+
 
