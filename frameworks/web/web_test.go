@@ -285,7 +285,7 @@ type NotImplimentedReader struct{}
 func (c NotImplimentedReader) Lookup(authorization, application string) entities.ApplicationConfiguration {
 	return entities.ApplicationConfiguration{
 		ResultType: entities.NotImplimentedError,
-		Message:    fmt.Sprintf("Not Implemented", application),
+		Message:    fmt.Sprintf("Not Implimented", application),
 	}
 
 }
@@ -295,7 +295,7 @@ type NotAuthentictedReader struct{}
 func (c NotAuthentictedReader) Lookup(authorization, application string) entities.ApplicationConfiguration {
 	return entities.ApplicationConfiguration{
 		ResultType: entities.AuthenticationError,
-		Message:    fmt.Sprintf("Not Autenticated", application),
+		Message:    fmt.Sprintf("Not Authenticated", application),
 	}
 
 }
