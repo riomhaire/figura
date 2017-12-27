@@ -12,7 +12,7 @@ import (
 	"github.com/urfave/negroni"
 )
 
-const VERSION = "figura Version 1.0"
+const VERSION = "figura Version 1.0.1"
 
 type Application struct {
 	registry *usecases.Registry

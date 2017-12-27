@@ -29,7 +29,7 @@ func (r *RestAPI) AddWorkerVersion(rw http.ResponseWriter, req *http.Request, ne
 	}
 }
 
-// AddWorkerHeader - adds coors header
+// AddCoorsHeader - adds coors header
 func (r *RestAPI) AddCoorsHeader(rw http.ResponseWriter, request *http.Request, next http.HandlerFunc) {
 
 	//rw.Header().Add("Access-Control-Allow-Origin", request.Header.Get("Origin"))

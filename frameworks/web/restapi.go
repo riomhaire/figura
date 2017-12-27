@@ -6,19 +6,16 @@ import (
 	"github.com/urfave/negroni"
 )
 
-const HttpSuccess = 200
-const HttpUnknown = 404
-const HttpUnAuthorized = 403
-const HttpApplicationFailure = 500
-
 var bearerPrefix = "bearer "
 
+// RestAPI - struct which contains info
 type RestAPI struct {
 	Registry   *usecases.Registry
 	Statistics *stats.Stats
 	Negroni    *negroni.Negroni
 }
 
+// NewRestAPI - Create a rest API pseudo object structure and populate it
 func NewRestAPI(registry *usecases.Registry) RestAPI {
 	api := RestAPI{}
 	api.Registry = registry

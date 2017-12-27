@@ -5,6 +5,7 @@ import (
 	"net/http"
 )
 
+// HandleStatistics - Exports stats as a REST Endpoint
 func (r *RestAPI) HandleStatistics(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 

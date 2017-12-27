@@ -74,7 +74,7 @@ func TestNotImplimented(t *testing.T) {
 	handler.ServeHTTP(rr, req)
 
 	// Check the status code is what we expect.
-	if status := rr.Code; status != http.StatusInternalServerError {
+	if status := rr.Code; status != http.StatusNotImplemented {
 		t.Errorf("handler returned wrong status code: got %v want %v",
 			status, http.StatusInternalServerError)
 	}
@@ -99,7 +99,7 @@ func TestNotAuthenticated(t *testing.T) {
 	handler.ServeHTTP(rr, req)
 
 	// Check the status code is what we expect.
-	if status := rr.Code; status != http.StatusInternalServerError {
+	if status := rr.Code; status != http.StatusUnauthorized {
 		t.Errorf("handler returned wrong status code: got %v want %v",
 			status, http.StatusInternalServerError)
 	}
@@ -275,7 +275,7 @@ type KnownApplicationStorage struct{}
 func (t KnownApplicationStorage) Lookup(application string) entities.ApplicationConfiguration {
 	return entities.ApplicationConfiguration{
 		ResultType: entities.NoError,
-		Message:    fmt.Sprintf("Success", application),
+		Message:    fmt.Sprintf("Success"),
 		Data:       []byte("entry: value"),
 	}
 }
@@ -285,7 +285,7 @@ type NotImplimentedReader struct{}
 func (c NotImplimentedReader) Lookup(authorization, application string) entities.ApplicationConfiguration {
 	return entities.ApplicationConfiguration{
 		ResultType: entities.NotImplimentedError,
-		Message:    fmt.Sprintf("Not Implimented", application),
+		Message:    fmt.Sprintf("Not Implimented"),
 	}
 
 }
@@ -295,7 +295,7 @@ type NotAuthentictedReader struct{}
 func (c NotAuthentictedReader) Lookup(authorization, application string) entities.ApplicationConfiguration {
 	return entities.ApplicationConfiguration{
 		ResultType: entities.AuthenticationError,
-		Message:    fmt.Sprintf("Not Authenticated", application),
+		Message:    "Not Authenticated",
 	}
 
 }
