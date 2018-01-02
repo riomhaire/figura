@@ -12,7 +12,7 @@ import (
 	"github.com/urfave/negroni"
 )
 
-const VERSION = "figura Version 1.0.1"
+const VERSION = "figura Version 1.0.2"
 
 type Application struct {
 	registry *usecases.Registry
@@ -43,10 +43,7 @@ func (a *Application) Initialize() {
 	registry.Logger = logger
 	registry.ConfigurationStorage = file.NewFileBasedConfigurationStorage(registry)
 	registry.ConfigurationReader = usecases.NewConfigurationReader(registry)
-
-	// registry.StorageInteractor = database
-	// registry.AuthenticateInteractor = interfaces.DefaultAuthenticateInteractor{&registry}
-	// registry.TokenInteractor = interfaces.DefaultTokenInteractor{&registry}
+	registry.Storage = file.NewFileBasedStorage(registry)
 
 	// Create API
 	restAPI := web.NewRestAPI(registry)
@@ -61,6 +58,7 @@ func (a *Application) Initialize() {
 	mux.HandleFunc("/api/v1/configuration/statistics", restAPI.HandleStatistics)
 	mux.HandleFunc("/api/v1/configuration/health", restAPI.HandleHealth)
 	mux.HandleFunc("/api/v1/configuration/{application}", restAPI.HandleReadConfig)
+	mux.HandleFunc("/api/v1/configuration/{application}/{filename}", restAPI.HandleReadFile)
 
 	// Add Middleware
 	negroni.Use(restAPI.Statistics)
@@ -68,9 +66,6 @@ func (a *Application) Initialize() {
 	negroni.UseFunc(restAPI.AddWorkerVersion) // Which version
 	negroni.UseFunc(restAPI.AddCoorsHeader)   // Add coors
 	negroni.UseHandler(mux)
-
-	// Stats runs across all instances
-	// n.UseFunc(AddWorkerHeader)
 
 }
 

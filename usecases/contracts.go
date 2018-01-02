@@ -1,6 +1,10 @@
 package usecases
 
-import "github.com/riomhaire/figura/entities"
+import (
+	"io"
+
+	"github.com/riomhaire/figura/entities"
+)
 
 // This file contains the various interface contracts used by the system.
 
@@ -18,4 +22,8 @@ type ConfigurationInteractor interface {
 
 type ConfigurationStorage interface {
 	Lookup(application string) entities.ApplicationConfiguration
+}
+
+type Storage interface {
+	Locate(application, filename string) (io.Reader, error)
 }

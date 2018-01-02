@@ -16,6 +16,7 @@ type Registry struct {
 	Logger               Logger
 	ConfigurationReader  ConfigurationInteractor
 	ConfigurationStorage ConfigurationStorage
+	Storage              Storage
 }
 
 func (c *Configuration) String() string {

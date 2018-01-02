@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -14,7 +15,7 @@ import (
 	"github.com/riomhaire/figura/usecases"
 )
 
-func createTestRegistry(storage usecases.ConfigurationStorage) *usecases.Registry {
+func createTestRegistry(configurationStorage usecases.ConfigurationStorage, fileStorage usecases.Storage) *usecases.Registry {
 	logger := frameworks.ConsoleLogger{}
 
 	registry := usecases.Registry{}
@@ -24,8 +25,10 @@ func createTestRegistry(storage usecases.ConfigurationStorage) *usecases.Registr
 
 	registry.Configuration = configuration
 	registry.Logger = logger
-	registry.ConfigurationStorage = storage
+	registry.ConfigurationStorage = configurationStorage
 	registry.ConfigurationReader = usecases.NewConfigurationReader(&registry)
+
+	registry.Storage = fileStorage
 
 	return &registry
 }
@@ -39,7 +42,7 @@ func TestUnknownApplication(t *testing.T) {
 
 	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
 	rr := httptest.NewRecorder()
-	registry := createTestRegistry(UnknownApplicationStorage{})
+	registry := createTestRegistry(UnknownApplicationStorage{}, AuthenticatedFileReader{})
 	restAPI := NewRestAPI(registry)
 	handler := http.HandlerFunc(restAPI.HandleReadConfig)
 
@@ -63,7 +66,7 @@ func TestNotImplimented(t *testing.T) {
 
 	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
 	rr := httptest.NewRecorder()
-	registry := createTestRegistry(UnknownApplicationStorage{})
+	registry := createTestRegistry(UnknownApplicationStorage{}, AuthenticatedFileReader{})
 	registry.ConfigurationReader = usecases.ConfigurationInteractor(NotImplimentedReader{})
 
 	restAPI := NewRestAPI(registry)
@@ -89,7 +92,7 @@ func TestNotAuthenticated(t *testing.T) {
 
 	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
 	rr := httptest.NewRecorder()
-	registry := createTestRegistry(KnownApplicationStorage{})
+	registry := createTestRegistry(KnownApplicationStorage{}, AuthenticatedFileReader{})
 	registry.ConfigurationReader = NotAuthentictedReader{}
 	restAPI := NewRestAPI(registry)
 	handler := http.HandlerFunc(restAPI.HandleReadConfig)
@@ -114,7 +117,7 @@ func TestKnownApplication(t *testing.T) {
 
 	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
 	rr := httptest.NewRecorder()
-	registry := createTestRegistry(KnownApplicationStorage{})
+	registry := createTestRegistry(KnownApplicationStorage{}, AuthenticatedFileReader{})
 	restAPI := NewRestAPI(registry)
 	handler := http.HandlerFunc(restAPI.HandleReadConfig)
 
@@ -140,7 +143,7 @@ func TestHealthHandler(t *testing.T) {
 
 	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
 	rr := httptest.NewRecorder()
-	registry := createTestRegistry(KnownApplicationStorage{})
+	registry := createTestRegistry(KnownApplicationStorage{}, AuthenticatedFileReader{})
 	restAPI := NewRestAPI(registry)
 	handler := http.HandlerFunc(restAPI.HandleHealth)
 
@@ -166,7 +169,7 @@ func TestStatisticsHandler(t *testing.T) {
 
 	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
 	rr := httptest.NewRecorder()
-	registry := createTestRegistry(KnownApplicationStorage{})
+	registry := createTestRegistry(KnownApplicationStorage{}, AuthenticatedFileReader{})
 	restAPI := NewRestAPI(registry)
 	handler := http.HandlerFunc(restAPI.HandleStatistics)
 
@@ -216,7 +219,7 @@ func TestHostAppender(t *testing.T) {
 func TestVersionAppender(t *testing.T) {
 	// Check that extra headers are added
 	rr := httptest.NewRecorder()
-	registry := createTestRegistry(KnownApplicationStorage{})
+	registry := createTestRegistry(KnownApplicationStorage{}, AuthenticatedFileReader{})
 	api := NewRestAPI(registry)
 	api.AddWorkerVersion(rr, nil, nil)
 	if len(rr.Header().Get("X-WORKER-VERSION")) == 0 {
@@ -255,6 +258,71 @@ func TestExtractValidAuthorizationHeader(t *testing.T) {
 	}
 	if token != bearer {
 		t.Fail()
+	}
+}
+
+func TestExtractNonBearerAuthorizationHeader(t *testing.T) {
+	token := "VALID-TOKEN"
+	invalidBearer := fmt.Sprintf("%v%v", "something ", token)
+	_, err := extractAuthorization(invalidBearer)
+	if err == nil {
+		t.Fail()
+	}
+}
+
+func TestReadApplicationFile(t *testing.T) {
+	// Create a request to pass to our handler.
+	req, err := http.NewRequest("GET", "/api/v1/configuration/known/somefile.txt", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
+	rr := httptest.NewRecorder()
+	registry := createTestRegistry(KnownApplicationStorage{}, AuthenticatedFileReader{})
+
+	restAPI := NewRestAPI(registry)
+	handler := http.HandlerFunc(restAPI.HandleReadFile)
+
+	// Our handlers satisfy http.Handler, so we can call their ServeHTTP method
+	// directly and pass in our Request and ResponseRecorder.
+	handler.ServeHTTP(rr, req)
+
+	// Check the status code is what we expect.
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusOK)
+	}
+	// OK check content is "this is a test"
+	content := rr.Body.String()
+	expected := "this is a test"
+	if content != expected {
+		t.Errorf("Content expected '%s' got '%s'", expected, content)
+	}
+}
+
+func TestBadReadApplicationFile(t *testing.T) {
+	// Create a request to pass to our handler.
+	req, err := http.NewRequest("GET", "/api/v1/configuration/known/unknown.txt", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
+	rr := httptest.NewRecorder()
+	registry := createTestRegistry(KnownApplicationStorage{}, BadAuthenticatedFileReader{})
+
+	restAPI := NewRestAPI(registry)
+	handler := http.HandlerFunc(restAPI.HandleReadFile)
+
+	// Our handlers satisfy http.Handler, so we can call their ServeHTTP method
+	// directly and pass in our Request and ResponseRecorder.
+	handler.ServeHTTP(rr, req)
+
+	// Check the status code is what we expect.
+	if status := rr.Code; status != http.StatusBadRequest {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusBadRequest)
 	}
 }
 
@@ -297,5 +365,21 @@ func (c NotAuthentictedReader) Lookup(authorization, application string) entitie
 		ResultType: entities.AuthenticationError,
 		Message:    "Not Authenticated",
 	}
+
+}
+
+type AuthenticatedFileReader struct{}
+
+func (c AuthenticatedFileReader) Locate(application, filename string) (io.Reader, error) {
+
+	return strings.NewReader("this is a test"), nil
+
+}
+
+type BadAuthenticatedFileReader struct{}
+
+func (c BadAuthenticatedFileReader) Locate(application, filename string) (io.Reader, error) {
+
+	return strings.NewReader(""), errors.New("Some error")
 
 }

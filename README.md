@@ -35,7 +35,16 @@ For example the 'lightauth2' application could have a configuration file called 
 
 When a request is make the appropriate potential file names are looked up and the first match returned. The order of precidence is 'yml' then 'yaml' then 'json' then 'xml'.
 
-Security is fairly simple in that the GET request Authorization field is checked against the contents of a key file based off the naming convention \<application-name\>.key - so lightauth2 key would be stored within 'lightauth2.key'. If no key file is present then anyone can access that configuration file.
+There is a second API endpoint for reading other config related files for an application which you might not want included in the main configuration file - for example a list of towns in a country.
+
+```http
+   http[s]://<host>:<port>/api/v1/configuration/\<application-name\>/\<filename\>
+```
+
+The filename will be found by convention in a directory within the main directory within a directory with the application name. You could if you prefer read the basic config this way if you so wish. 
+
+
+Security for both endpoints is fairly simple in that the GET request Authorization field is checked against the contents of a key file based off the naming convention \<application-name\>.key - so lightauth2 key would be stored within 'lightauth2.key'. If no key file is present then anyone can access that configuration file.
 
 ## Execution
 
