@@ -26,10 +26,10 @@ The best way if you just want run is to build and install the apps:
 The design is fairly simple ... we have a simple http server which dishes up files based on the rest URI:
 
 ```http
-   http[s]://<host>:<port>/api/v1/configuration/\<application-name\>
+   http[s]://<host>:<port>/api/v1/configuration/<application-name>
 ```
 
-and a 'GET' request where \<application-name\> will map to a \<application-name\>.yml or <\<application-name\>.yaml> or \<application-name\>.json. The directory (in the default implimentation) used to read from is controlled by the '-configs' command line option.
+and a 'GET' request where \<application-name\> will map to a \<application-name\>.yml or <\<application-name\>.yaml or \<application-name\>.json. The directory (in the default implimentation) used to read from is controlled by the '-configs' command line option.
 
 For example the 'lightauth2' application could have a configuration file called 'lightauth2.yml' or 'lightauth2.json'.
 
@@ -38,7 +38,7 @@ When a request is make the appropriate potential file names are looked up and th
 There is a second API endpoint for reading other config related files for an application which you might not want included in the main configuration file - for example a list of towns in a country.
 
 ```http
-   http[s]://<host>:<port>/api/v1/configuration/\<application-name\>/\<filename\>
+   http[s]://<host>:<port>/api/v1/configuration/<application-name>/<filename>
 ```
 
 The filename will be found by convention in a directory within the main directory within a directory with the application name. You could if you prefer read the basic config this way if you so wish. 
