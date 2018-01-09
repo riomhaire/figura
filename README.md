@@ -29,7 +29,7 @@ The design is fairly simple ... we have a simple http server which dishes up fil
    http[s]://<host>:<port>/api/v1/configuration/<application-name>
 ```
 
-and a 'GET' request where \<application-name\> will map to a \<application-name\>.yml or <\<application-name\>.yaml or \<application-name\>.json. The directory (in the default implimentation) used to read from is controlled by the '-configs' command line option.
+and a 'GET' request where \<application-name\> will map to a \<application-name\>.yml or \<application-name\>.yaml or \<application-name\>.json. The directory (in the default implimentation) used to read from is controlled by the '-configs' command line option.
 
 For example the 'lightauth2' application could have a configuration file called 'lightauth2.yml' or 'lightauth2.json'.
 
