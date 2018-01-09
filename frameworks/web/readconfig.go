@@ -12,8 +12,8 @@ import (
 func (rest *RestAPI) HandleReadConfig(w http.ResponseWriter, r *http.Request) {
 	application := mux.Vars(r)["application"]
 
-	response := rest.Registry.ConfigurationReader.Lookup(r.Header.Get("Authorization"), application)
-	rest.Registry.Logger.Log("TRACE", response.Message)
+	authorization := r.Header.Get("Authorization")
+	response := rest.Registry.ConfigurationReader.Lookup([]byte(authorization), application)
 	code := http.StatusNotImplemented
 	data := []byte("Internal Error")
 

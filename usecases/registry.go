@@ -17,6 +17,7 @@ type Registry struct {
 	ConfigurationReader  ConfigurationInteractor
 	ConfigurationStorage ConfigurationStorage
 	Storage              Storage
+	Authenticator        TokenInteractor
 }
 
 func (c *Configuration) String() string {

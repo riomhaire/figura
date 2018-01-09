@@ -350,7 +350,7 @@ func (t KnownApplicationStorage) Lookup(application string) entities.Application
 
 type NotImplimentedReader struct{}
 
-func (c NotImplimentedReader) Lookup(authorization, application string) entities.ApplicationConfiguration {
+func (c NotImplimentedReader) Lookup(authorization []byte, application string) entities.ApplicationConfiguration {
 	return entities.ApplicationConfiguration{
 		ResultType: entities.NotImplimentedError,
 		Message:    fmt.Sprintf("Not Implimented"),
@@ -360,7 +360,7 @@ func (c NotImplimentedReader) Lookup(authorization, application string) entities
 
 type NotAuthentictedReader struct{}
 
-func (c NotAuthentictedReader) Lookup(authorization, application string) entities.ApplicationConfiguration {
+func (c NotAuthentictedReader) Lookup(authorization []byte, application string) entities.ApplicationConfiguration {
 	return entities.ApplicationConfiguration{
 		ResultType: entities.AuthenticationError,
 		Message:    "Not Authenticated",

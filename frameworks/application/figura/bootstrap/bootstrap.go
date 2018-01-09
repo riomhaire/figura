@@ -12,7 +12,7 @@ import (
 	"github.com/urfave/negroni"
 )
 
-const VERSION = "figura Version 1.0.2"
+const VERSION = "figura Version 1.0.4"
 
 type Application struct {
 	registry *usecases.Registry
@@ -44,6 +44,7 @@ func (a *Application) Initialize() {
 	registry.ConfigurationStorage = file.NewFileBasedConfigurationStorage(registry)
 	registry.ConfigurationReader = usecases.NewConfigurationReader(registry)
 	registry.Storage = file.NewFileBasedStorage(registry)
+	registry.Authenticator = file.NewFileBasedAuthenticationStorage(registry)
 
 	// Create API
 	restAPI := web.NewRestAPI(registry)

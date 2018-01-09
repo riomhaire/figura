@@ -9,12 +9,9 @@ import (
 	"github.com/riomhaire/figura/usecases"
 )
 
-const (
-	keyExtension = ".key"
-)
-
 var validExtensions = []string{"yml", "yaml", "json", "properties"}
 
+// FileBasedConfigurationStorage - contains info relevant to implementation
 type FileBasedConfigurationStorage struct {
 	Registry *usecases.Registry
 }
