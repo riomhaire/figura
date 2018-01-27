@@ -12,7 +12,7 @@ import (
 	"github.com/urfave/negroni"
 )
 
-const VERSION = "figura Version 1.0.4"
+const VERSION = "figura Version 1.0.5"
 
 type Application struct {
 	registry *usecases.Registry
@@ -56,7 +56,7 @@ func (a *Application) Initialize() {
 	restAPI.Negroni = negroni
 
 	// Add handlers
-	mux.HandleFunc("/api/v1/configuration/statistics", restAPI.HandleStatistics)
+	mux.HandleFunc("/api/v1/configuration/metrics", restAPI.HandleStatistics)
 	mux.HandleFunc("/api/v1/configuration/health", restAPI.HandleHealth)
 	mux.HandleFunc("/api/v1/configuration/{application}", restAPI.HandleReadConfig)
 	mux.HandleFunc("/api/v1/configuration/{application}/{filename}", restAPI.HandleReadFile)
