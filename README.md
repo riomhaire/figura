@@ -80,7 +80,7 @@ Apart from the main get config file endpoint there are two others within figura:
 
 The former used the negroni statistics plugin and returns data like:
 
-```html
+```json
 {
   "pid": 1587,
   "uptime": "2m53.303479465s",
@@ -100,8 +100,33 @@ The former used the negroni statistics plugin and returns data like:
   "average_response_time_sec": 0.000183079
 }
 ```
+If 'Accept' mime type is 'application/json'. If the mime type is set to 'text/plain' then the prometheus format is returned:
 
-The latter is a simple endpoint which returns:
+```text
+# HELP figura_uptime_sec How many seconds app has been up.
+# TYPE figura_uptime_sec counter
+figura_uptime_sec 58.587670385
+
+# HELP figura_total_response_time_sec Total time spent in handling requests.
+# TYPE figura_total_response_time_sec counter
+figura_total_response_time_sec 0.000818617
+
+# HELP figura_average_response_time_sec Average time spent in handling requests.
+# TYPE figura_average_response_time_sec guage
+figura_average_response_time_sec 9.0957e-05
+
+# HELP figura_response_status_200 Total Number of Requests returning http status 200
+# TYPE figura_response_status_200 counter
+figura_response_status_200 9
+
+# HELP figura_response_total_count Total Number of Requests.
+# TYPE figura_response_total_count counter
+figura_response_total_count 9
+
+```
+
+
+The health is a simple endpoint which returns:
 
 ```json
 {
