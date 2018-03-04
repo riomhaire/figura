@@ -16,8 +16,9 @@ test:
 
 profile:
 	@echo Profiling Code
-	@go test -coverprofile coverage.out  github.com/riomhaire/figura/frameworks/web 
-	@go tool cover -html=coverage.out -o coverage-web.html
+	@go get -u github.com/haya14busa/goverage 
+	@goverage -v -coverprofile=coverage.out ./...
+	@go tool cover -html=coverage.out -o coverage.html
 	@rm coverage.out	
 
 # @go test -coverprofile coverage.out  github.com/riomhaire/figura/interfaces 
