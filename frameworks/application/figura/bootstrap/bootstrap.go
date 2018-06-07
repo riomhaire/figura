@@ -3,16 +3,19 @@ package bootstrap
 import (
 	"flag"
 	"fmt"
+	"os"
 
 	"github.com/gorilla/mux"
 	"github.com/riomhaire/figura/frameworks"
 	"github.com/riomhaire/figura/frameworks/file"
+	"github.com/riomhaire/figura/frameworks/serviceregistry/consulagent"
+	"github.com/riomhaire/figura/frameworks/serviceregistry/defaultserviceregistry"
 	"github.com/riomhaire/figura/frameworks/web"
 	"github.com/riomhaire/figura/usecases"
 	"github.com/urfave/negroni"
 )
 
-const VERSION = "figura Version 1.0.6"
+const VERSION = "figura Version 1.1.0"
 
 type Application struct {
 	registry *usecases.Registry
@@ -30,6 +33,9 @@ func (a *Application) Initialize() {
 	port := flag.Int("port", 3050, "Port to use")
 	configurations := flag.String("configs", "configs", "Directory here configurations stored")
 
+	enableConsul := flag.Bool("consul", false, "Enable consul integration")
+	consulHost := flag.String("consulHost", "http://localhost:8500", "Consul Host")
+
 	flag.Parse()
 	// Set in config
 	configuration.Application = "Figura"
@@ -37,6 +43,10 @@ func (a *Application) Initialize() {
 	configuration.Profiling = *enableProfiling
 	configuration.Port = *port
 	configuration.ConfigurationLocation = *configurations
+	configuration.Consul = *enableConsul
+	configuration.ConsulHost = *consulHost
+	hostname, _ := os.Hostname()
+	configuration.Host = hostname
 
 	registry := &usecases.Registry{}
 	registry.Configuration = configuration
@@ -45,6 +55,14 @@ func (a *Application) Initialize() {
 	registry.ConfigurationReader = usecases.NewConfigurationReader(registry)
 	registry.Storage = file.NewFileBasedStorage(registry)
 	registry.Authenticator = file.NewFileBasedAuthenticationStorage(registry)
+
+	// Do we need external registry
+	if configuration.Consul {
+		registry.ExternalServiceRegistry = consulagent.NewConsulServiceRegistry(registry, "/api/v1/configuration", "/api/v1/configuration/health")
+
+	} else {
+		registry.ExternalServiceRegistry = defaultserviceregistry.NewDefaultServiceRegistry(registry)
+	}
 
 	// Create API
 	restAPI := web.NewRestAPI(registry)
@@ -74,5 +92,13 @@ func (a *Application) Initialize() {
 func (a *Application) Run() {
 	a.registry.Logger.Log("INFO", fmt.Sprintf("Running %s", a.registry.Configuration.Version))
 	a.registry.Logger.Log("INFO", a.registry.Configuration.String())
+	// Register with external service if required ... default does nothing
+	a.registry.ExternalServiceRegistry.Register()
+	// Run on port
 	a.restAPI.Negroni.Run(fmt.Sprintf(":%d", a.registry.Configuration.Port))
+}
+
+func (a *Application) Stop() {
+	a.registry.Logger.Log("INFO", "Shutting Down REST API")
+	a.registry.ExternalServiceRegistry.Deregister()
 }
