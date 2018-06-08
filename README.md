@@ -41,8 +41,7 @@ There is a second API endpoint for reading other config related files for an app
    http[s]://<host>:<port>/api/v1/configuration/<application-name>/<filename>
 ```
 
-The filename will be found by convention in a directory within the main directory within a directory with the application name. You could if you prefer read the basic config this way if you so wish. 
-
+The filename will be found by convention in a directory within the main directory within a directory with the application name. You could if you prefer read the basic config this way if you so wish.
 
 Security for both endpoints is fairly simple in that the GET request Authorization field is checked against the contents of a key file based off the naming convention \<application-name\>.key - so lightauth2 key would be stored within 'lightauth2.key'. If no key file is present then anyone can access that configuration file.
 
@@ -55,12 +54,15 @@ After building and installation there is little to config other than the directo
 2017/12/26 18:18:14 [INFO] Initializing
 Usage of ./figura:
   -configs string
-      Directory here configurations stored (default "configs")
+        Directory here configurations stored (default "configs")
+  -consul
+        Enable consul integration
+  -consulHost string
+        Consul Host (default "http://localhost:8500")
   -port int
-      Port to use (default 3050)
+        Port to use (default 3050)
   -profile
-      Enable profiling endpoint
-
+        Enable profiling endpoint
 ```
 
 So to run using config files within the '/etc/figura' and on port '8080' you would execute the command:
@@ -100,6 +102,7 @@ The former used the negroni statistics plugin and returns data like:
   "average_response_time_sec": 0.000183079
 }
 ```
+
 If 'Accept' mime type is 'application/json'. If the mime type is set to 'text/plain' then the prometheus format is returned:
 
 ```text
@@ -122,9 +125,7 @@ figura_response_status_200 9
 # HELP figura_response_total_count Total Number of Requests.
 # TYPE figura_response_total_count counter
 figura_response_total_count 9
-
 ```
-
 
 The health is a simple endpoint which returns:
 
